@@ -1,0 +1,26 @@
+{% extends 'base.html' %} {% block title %}wait{% endblock title %} {% block
+    content %}
+    <div class="hourglassBackground">
+        <div class="hourglassContainer">
+          <div class="hourglassCurves"></div>
+          <div class="hourglassCapTop"></div>
+          <div class="hourglassGlassTop"></div>
+          <div class="hourglassSand"></div>
+          <div class="hourglassSandStream"></div>
+          <div class="hourglassCapBottom"></div>
+          <div class="hourglassGlass"></div>
+        </div>
+      </div>
+      <meta http-equiv="refresh" />
+
+    <script>
+        function reloadPage() {
+            location.reload(); // Reload the page
+        }
+
+        // Reload every 5 seconds (5000 milliseconds)
+        setInterval(reloadPage, 5000);
+    </script>
+
+{% endblock content %}
+    

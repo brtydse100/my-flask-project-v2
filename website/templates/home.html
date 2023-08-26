@@ -1,0 +1,19 @@
+{% extends 'base.html' %} {% block title %}Home{% endblock title %} {% block
+content %}
+<h1 align="center">Type of split</h1>
+
+<form method="POST" action="{{ url_for('views.home') }}">
+  <div align="center">
+    <input
+      type="text"
+      name = "youtube_url"
+      placeholder={{youtube_url}}
+      style="width: 400px"
+    />
+    <button type="submit" class="btn btn-primary" id="continue">
+      continue
+    </button>
+  </div>
+</form>
+
+{% endblock content %}

@@ -1,0 +1,61 @@
+{% extends 'base.html' %} {% block title %}Final{% endblock title %} {% block
+content %}
+<form method="POST" action="{{ url_for('views.final') }}">
+  {% if show %}
+
+  <div align="center">
+    <div class="range-container">
+      <label for="range-input">Select a value:</label>
+      <input
+        onclick
+        type="range"
+        name="images_to_get"
+        id="range-input"
+        class="custom-range"
+        min="1"
+        max="{{max}}"
+        step="1"
+      />
+      <output for="range-input" id="output">{{images_to_get}}</output>
+    </div>
+
+    {% endif %}
+
+    <br />
+    <br />
+    {% if image_files != 0 %}
+    <h1>Image Gallery</h1>
+    <div class="image-gallery">
+      {% for image_file in image_files %} <img src="{{ url_for('static',
+      filename="frames/"+image_file)}}" class="img-thumbnail" width ="200" /> 
+    {% endfor %}
+      
+      <meta http-equiv="refresh" />
+    </div>
+    {% endif %}
+
+    <br />
+    <br />
+    {% if space_between_images != 1%}
+    <button type="submit" class="btn btn-outline-primary" name="download">
+      download
+    </button>
+
+    {% endif %}
+
+    <button type="submit" class="btn btn-outline-primary" name="return">
+      return
+    </button>
+  </div>
+</form>
+<script>
+  const rangeInput = document.getElementById('range-input');
+  const outputElement = document.getElementById('output');
+
+  // Add input event listener to the range input
+  rangeInput.addEventListener('input', function() {
+      outputElement.textContent = this.value;
+  });
+</script>
+
+{% endblock content %}
