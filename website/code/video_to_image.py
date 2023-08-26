@@ -16,7 +16,8 @@ class Constants:  # change those
         os.getcwd(), os.path.join(r"website\static\frames"))
     VIDEO_FOLDER_PATH = os.path.join(
         os.getcwd(), os.path.join(r"website\videos"))
-    TEXT_FILE_PATH = os.path.join(os.getcwd(), os.path.join(r"video_path.txt"))
+    TEXT_FILE_PATH = os.path.join(os.getcwd(), os.path.join(r"website\static\video_path.txt"))
+    STATIC_FOLDER_PATH = os.path.join(os.getcwd(), os.path.join(r"website\static"))
 
 
 def is_youtube_url(url):
@@ -36,6 +37,7 @@ def videoTime(cap):
 
 
 def download_youtube_video(video_url):
+    os.chdir(Constants.STATIC_FOLDER_PATH)
     with open("video_path.txt", "a") as f:
         f.write("started \n")
         f.close()
