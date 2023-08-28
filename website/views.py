@@ -60,16 +60,18 @@ def final():
 def home():
     if os.path.exists(Constants.TEXT_FILE_PATH):
         os.remove(Constants.TEXT_FILE_PATH)
+        
     youtube_url = 'Please_enter_a_vaild_youtube_url'
+    
+    
     clearDicrectory(Constants.VIDEO_FOLDER_PATH)
     clearDicrectory(Constants.FRAMS_FOLDER_PATH)
 
-    selected_choice = "seconds"
     if request.method == 'POST':
         youtube_url = request.form.get('youtube_url')
-
         if is_youtube_url(youtube_url):
-
+            clearDicrectory(Constants.VIDEO_FOLDER_PATH)
+            clearDicrectory(Constants.FRAMS_FOLDER_PATH)
             session['youtube_url'] = youtube_url
             session['is_showing'] = False
             return redirect(url_for('views.wait'))  
@@ -77,7 +79,20 @@ def home():
             youtube_url = 'Please_enter_a_vaild_youtube_url'
             print("reset")
 
-    return render_template("home.html", selected_choice=selected_choice, youtube_url=youtube_url)
+            
+        if 'file' in request.files:
+            uploaded_file =  request.files['file']
+            if uploaded_file.filename != '':
+                clearDicrectory(Constants.VIDEO_FOLDER_PATH)
+                clearDicrectory(Constants.FRAMS_FOLDER_PATH)
+                uploaded_file.save(Constants.VIDEO_FOLDER_PATH + uploaded_file.filename)
+                session['video_path'] = os.path.join(Constants.VIDEO_FOLDER_PATH + uploaded_file.filename)
+                return redirect(url_for('views.final'))
+            
+
+
+
+    return render_template("home.html", youtube_url=youtube_url)
 
 
 @views.route('/download_folder', methods=['GET', 'POST'])

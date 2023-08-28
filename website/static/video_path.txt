@@ -1,0 +1,4 @@
+started 
+C:\Users\Ido\Desktop\my-flask-project-v2\website\videos\What happened to my channel.mp4
+finishedC:\Users\Ido\Desktop\my-flask-project-v2\website\videos\What happened to my channel.mp4
+finished
