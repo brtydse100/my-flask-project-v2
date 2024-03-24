@@ -1,4 +1,4 @@
-
+from random import randint, randrange
 from multiprocessing import Process
 import re
 import shutil
@@ -6,19 +6,6 @@ import cv2
 import os
 import math
 from pytube import YouTube
-
-# is_downloaded = None
-# video_path = None
-
-
-class Constants:  # change those
-    FRAMS_FOLDER_PATH = os.path.join(
-        os.getcwd(), os.path.join(r"website\static\frames"))
-    VIDEO_FOLDER_PATH = os.path.join(
-        os.getcwd(), os.path.join(r"website\videos"))
-    TEXT_FILE_PATH = os.path.join(os.getcwd(), os.path.join(r"website\static\video_path.txt"))
-    STATIC_FOLDER_PATH = os.path.join(os.getcwd(), os.path.join(r"website\static"))
-
 
 def is_youtube_url(url):
     youtube_pattern = re.compile(
@@ -36,9 +23,9 @@ def videoTime(cap):
     return seconds
 
 
-def download_youtube_video(video_url):
-    os.chdir(Constants.STATIC_FOLDER_PATH)
-    with open("video_path.txt", "a") as f:
+def download_youtube_video(video_url, user_id, user_folder):
+    os.chdir(user_folder)
+    with open(f"{user_id}.txt", "a") as f:
         f.write("started \n")
         f.close()
 
@@ -46,11 +33,14 @@ def download_youtube_video(video_url):
         youtube = YouTube(video_url)
         video_stream = youtube.streams.get_highest_resolution()
         video_path = video_stream.download(
-            output_path=Constants.VIDEO_FOLDER_PATH)
-        with open("video_path.txt", "a") as f:
-
+            output_path=user_folder)
+        
+        os.chdir(user_folder)
+        
+        with open(f"{user_id}.txt", "a") as f:
             f.write(video_path + "\n")
             f.write("finished")
+            
 
     except Exception as e:
         return False, f"An error occurred: {str(e)}"
@@ -68,12 +58,12 @@ def clearDicrectory(folder_path):
             print('Failed to delete %s. Reason: %s' % (file_path, e))
 
 
-def videoToImages(cap, images_to_get):
-    os.chdir(Constants.FRAMS_FOLDER_PATH)
+def videoToImages(cap, images_to_get, user_folder):
+    os.chdir(user_folder)
     image_counter = 1
     for i in frames_to_get(cap, images_to_get):
         cap.set(1, i)  # Where frame_no is the frame you want
-        ret, frame = cap.read()  # Read the frame
+        ret, frame = cap.read()  # Read the video
         cv2.imwrite(f"{image_counter}.jpg", frame)
         image_counter += 1
 
