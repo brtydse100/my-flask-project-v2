@@ -20,44 +20,7 @@ from .code.video_to_image import download_youtube_video, get_max_images, is_yout
 views = Blueprint('views', __name__)
 
 
-@views.route('/final',  methods=['GET', 'POST'])
-def final():
-    user_folder_path = session.get("user_folder_path", None)
-    video_path = session.get("video_path", None)
-    user_id = session.get("user_id", None)
-    is_showing = session.get("is_showing", None)
-    
-    if os.path.exists(str(video_path)) == False or 'return' in request.form:
-        session['user_folder_path'] = None
-        return redirect(url_for('views.home'))
-    
-    image_files = 0
-    cap = cv2.VideoCapture(video_path)
-    max = get_max_images(cap)
-    images_to_get =(int)(max / 2)
-    referrer = request.referrer
-    
 
-    if not is_showing and ('download' in request.form):
-        return redirect(url_for('views.download_folder'))
-
-    if not is_showing :
-        image_files = [file for file in os.listdir(
-            user_folder_path) if file.lower().endswith(('.png', '.jpg', '.jpeg', '.gif'))]
-        return render_template("final.html", min=1, max=max, image_files=image_files, show = is_showing, user_id = str(user_id))
-
-    if request.method == 'POST':
-        images_to_get = request.form.get("images_to_get")
-        print("images_to_get: ", images_to_get)
-        session['images_to_get'] = images_to_get
-
-
-                
-        if 'download' in request.form:
-            return redirect(url_for('views.loading'))
-            
-
-    return render_template("final.html", min=1, max=max, show = is_showing, images_to_get = images_to_get,  user_id = str(user_id))
 
 
 @views.route('/',  methods=['GET', 'POST'])
@@ -90,18 +53,61 @@ def home():
         if 'video_file' in request.files:
             uploaded_file =  request.files['video_file']
             if uploaded_file.filename != '':
-                print("user_folder_path: " +user_folder_path)
                 
                 os.mkdir(user_folder_path)
+
+                uploaded_file.save((user_folder_path + "/") + uploaded_file.filename)
+                video_path = os.path.join(user_folder_path , uploaded_file.filename)
+
+                session['video_path'] = video_path
                 
-                uploaded_file.save(user_folder_path + uploaded_file.filename)
-                session['video_path'] = os.path.join(user_folder_path + uploaded_file.filename)
-                return redirect(url_for('views.final'))
-            
-
-
+                if os.path.exists(video_path):
+                    session['is_showing'] = True
+                    return redirect(url_for('views.final')) 
 
     return render_template("home.html", youtube_url=youtube_url)
+
+
+@views.route('/final',  methods=['GET', 'POST'])
+def final():
+    user_folder_path = session.get("user_folder_path", None)
+    video_path = session.get("video_path", None)
+    user_id = session.get("user_id", None)
+    is_showing = session.get("is_showing", None)
+    
+    image_files = 0
+    cap = cv2.VideoCapture(video_path)
+    max = get_max_images(cap)
+    images_to_get =(int)(max / 2)
+
+    
+    if os.path.exists(str(video_path)) == False or 'return' in request.form or max == 0:
+        session['user_folder_path'] = None
+        return redirect(url_for('views.home'))
+    
+    
+
+    if not is_showing and ('download' in request.form):
+        return redirect(url_for('views.download_folder'))
+
+    if not is_showing :
+        image_files = [file for file in os.listdir(
+            user_folder_path) if file.lower().endswith(('.png', '.jpg', '.jpeg', '.gif'))]
+        return render_template("final.html", min=1, max=max, image_files=image_files, show = is_showing, user_id = str(user_id))
+
+    if request.method == 'POST':
+        images_to_get = request.form.get("images_to_get")
+        print("images_to_get: ", images_to_get)
+        session['images_to_get'] = images_to_get
+
+
+                
+        if 'download' in request.form:
+            return redirect(url_for('views.loading'))
+            
+
+    return render_template("final.html", min=1, max=max, show = is_showing, images_to_get = images_to_get,  user_id = str(user_id))
+
 
 
 @views.route('/download_folder', methods=['GET', 'POST'])
@@ -111,8 +117,12 @@ def download_folder():
     file_path = session.get("file_path", None)
     path = session.get("user_folder_path", None)
     root = os.path.dirname(path)
-    os.remove(file_path)
-    os.remove(video_path)
+
+    if os.path.exists(file_path):
+        os.remove(file_path)
+        
+    if os.path.exists(video_path):
+        os.remove(video_path)
     
     files = glob.glob(os.path.join(path, '*'))
     stream = BytesIO()
@@ -169,7 +179,12 @@ def wait():
                 
                 
     return render_template("wait.html")
-                
+
+@views.route('/cnn_model',  methods=['GET', 'POST'])
+def cnn_model():
+    
+
+    return render_template("cnn_model.html")
         
 
 
