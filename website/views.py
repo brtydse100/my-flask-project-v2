@@ -182,15 +182,17 @@ def wait():
 
 @views.route('/cnn_model',  methods=['GET', 'POST'])
 def cnn_model():
-    model_user_folder_path = session.get("model_user_folder_path", None)
+    model_user_id = session.get("model_user_id", None)
+    image_filename = session.get("image_filename", None)
     model_user_folder_path = session.get("model_user_folder_path", None)
     model_path = None
     image_path = None
+    missing_fields = False
+    error_message = "enter all the fields to proceed with testing"
     
     
     if request.method == 'POST':
         model_user_id = randrange(0, 1000000)
-        model_user_folder_path = None
         current_path = os.path.dirname(os.path.abspath(__file__))
 
         model_user_folder_path = os.path.join(current_path, (r"static\users\\" + str(model_user_id)))
@@ -214,17 +216,63 @@ def cnn_model():
             image_path = os.path.join(model_user_folder_path , uploaded_image_file.filename)
             session['image_path'] = image_path
 
+
     if 'submit_model' in request.form:
+        print(model_path)
+        print(image_path)
         if image_path != None and model_path != None:
             os.mkdir(model_user_folder_path)
+            session['image_filename'] = uploaded_image_file.filename
             uploaded_image_file.save(image_path)
             uploaded_model_file.save(model_path)
+            return  redirect(url_for("cnn_model_final.html"))
+        else:
+            missing_fields = True
+            return render_template("cnn_model.html", error_message = error_message,missing_fields = missing_fields)
+            
 
     
-    return render_template("cnn_model.html")
+    return render_template("cnn_model.html", error_message = error_message, missing_fields = missing_fields)
         
 
 
+
+
+@views.route('/cnn_model_final',  methods=['GET', 'POST'])
+def cnn_model_final():
+    uploaded_new_image_file = None
+    model_user_folder_path = session.get("model_user_folder_path", None)
+    image_filename = session.get("image_filename", None)
+    model_user_id = session.get("model_user_id", None)
+    model_path = session.get("model_path", None)
+    image_path = session.get("image_path", None)
+    
+    if image_filename != None:
+        #TODO add this line of code to the html "<img src="{{ url_for('static', filename='users/' + model_user_id + "/" +image_filename ) }}" alt="{{ image_filename }}" class="img-thumbnail" width="200">"
+        session['image_filename'] = None
+        return render_template("cnn_model_final.html", image_filename = image_filename)
+        
+    if request.method == 'POST':
+
+            
+        if 'image_file' in request.files:
+            uploaded_new_image_file =  request.files['image_file']
+            if uploaded_new_image_file.filename != '':
+                image_path = os.path.join(model_user_folder_path , uploaded_new_image_file.filename)
+                
+
+
+        if 'submit_model' in request.form:
+            if uploaded_new_image_file != None:
+                uploaded_new_image_file.save(model_path)
+                session['image_path'] = image_path
+                
+            print(model_path)
+            print(image_path)
+
+       
+    
+    return render_template("cnn_model_final.html")
 
 
 

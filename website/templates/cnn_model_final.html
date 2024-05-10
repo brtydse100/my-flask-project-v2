@@ -1,13 +1,52 @@
-{% extends 'base.html' %} {% block title %}cnn_model{% endblock title %} {% block
+{% extends 'base.html' %} {% block title %}cnn_model_final{% endblock title %} {% block
     content %}
-    <form method="POST" action="{{ url_for('views.cnn_model-FINAL') }}" enctype="multipart/form-data">
+    <form method="POST" action="{{ url_for('views.cnn_model_final') }}" enctype="multipart/form-data">
+        <head>
+            <h1 align="center">image classification model tester</h1>
+        </head>
+
+        <body>
+            <div name = "show image">
+
+            </div>
+
+            <br></br>
+
+            <div name = "model conf">
+              <output for="range-input" id="output">model confidence: </output>
+                <br></br>
+
+              <output for="range-input" id="output">class: </output>
+            </div>
+
+            <br></br>
+            <br></br>
+
+            <div name= "model eval"> 
+              <output for="range-input" id="output">model accuracy: </output>
+                <br></br>
+
+              <output for="range-input" id="output">model loss: </output>
+
+            </div>
+            <div align="left">
+              <br></br>
+              <h2>test more pictures: </h2>
+              <input type="file" class="btn btn-outline-primary btn"  id="file" name="image_file" accept="image/*" >
       
-    <div align = "center">
-        <input type="file" name="video_file" id="file" accept=".MP4,.MOV,.AVI,.WMV,.AVCHD,.WEBM">
-    </div>
-    <div align = "center">
-        <input type="file" name="video_file" id="file" accept=".MP4,.MOV,.AVI,.WMV,.AVCHD,.WEBM">
-    </div>
+            </div>
+      
+            {% if  missing_fields%}
+              <output for="range-input" id="output">{{error_message}}</output>
+            {% endif %}
+      
+            <br></br>
+            <input type="submit" class="btn btn-primary btn-block" value="test again" name="submit_model">
+            <input type="submit" class="btn btn-primary btn-block" value="return home" name="submit_model">
+           </body>
+
+        </form>
+        <script>
     </form>
 
     
