@@ -182,8 +182,45 @@ def wait():
 
 @views.route('/cnn_model',  methods=['GET', 'POST'])
 def cnn_model():
+    model_user_folder_path = session.get("model_user_folder_path", None)
+    model_user_folder_path = session.get("model_user_folder_path", None)
+    model_path = None
+    image_path = None
     
+    
+    if request.method == 'POST':
+        model_user_id = randrange(0, 1000000)
+        model_user_folder_path = None
+        current_path = os.path.dirname(os.path.abspath(__file__))
 
+        model_user_folder_path = os.path.join(current_path, (r"static\users\\" + str(model_user_id)))
+        session['model_user_id'] = model_user_id
+            
+        session['model_user_folder_path'] = model_user_folder_path
+        
+
+
+    if 'model_file' in request.files:
+        
+        uploaded_model_file =  request.files['model_file']
+        if uploaded_model_file.filename != '':
+            model_path = os.path.join(model_user_folder_path , uploaded_model_file.filename)
+            session['model_path'] = model_path
+
+            
+    if 'image_file' in request.files:
+        uploaded_image_file =  request.files['image_file']
+        if uploaded_image_file.filename != '':
+            image_path = os.path.join(model_user_folder_path , uploaded_image_file.filename)
+            session['image_path'] = image_path
+
+    if 'submit_model' in request.form:
+        if image_path != None and model_path != None:
+            os.mkdir(model_user_folder_path)
+            uploaded_image_file.save(image_path)
+            uploaded_model_file.save(model_path)
+
+    
     return render_template("cnn_model.html")
         
 

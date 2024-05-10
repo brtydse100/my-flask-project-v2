@@ -1,17 +1,39 @@
 {% extends 'base.html' %} {% block title %}cnn_model{% endblock title %} {% block
-    content %}
-    <form method="POST" action="{{ url_for('views.cnn_model') }}">
-      
-    </form>
-    <script>
-      const rangeInput = document.getElementById('range-input');
-      const outputElement = document.getElementById('output');
-    
-      // Add input event listener to the range input
-      rangeInput.addEventListener('input', function() {
-          outputElement.textContent = this.value;
-      });
-    </script>
-    
-    {% endblock content %}
-    
+  content %}
+  <form method="POST" action="{{ url_for('views.cnn_model') }}" enctype="multipart/form-data">
+    <head>
+      <h1 align="center">image classification model tester</h1>
+    </head>
+    <body>
+      <div align="left">
+        <br></br>
+        <h2>upload your image here: </h2>
+        <input type="file" class="btn btn-outline-primary btn"  id="file" name="image_file" accept="image/*" >
+        <br></br>
+        <br></br>
+
+        <h2>upload your model here (.h5): </h2>
+        <input type="file" class="btn btn-outline-primary btn" id="file" name="model_file" accept=".h5">
+      </div>
+      <br></br>
+      <br></br>
+
+      {% if  missing_fields%}
+        <output for="range-input" id="output">{{error_message}}</output>
+      {% endif %}
+
+      <br></br>
+      <input type="submit" class="btn btn-primary btn-block" value="test your model" name="submit_model">
+     </body>
+  </form>
+  <script>
+    const rangeInput = document.getElementById('range-input');
+    const outputElement = document.getElementById('output');
+  
+    // Add input event listener to the range input
+    rangeInput.addEventListener('input', function() {
+        outputElement.textContent = this.value;
+    });
+  </script>
+  
+  {% endblock content %}
