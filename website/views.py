@@ -12,10 +12,11 @@ import glob
 import os
 import cv2
 import _thread
+
 from flask import Blueprint,  url_for, render_template, request, redirect, session, send_file
 
 from .code.video_to_image import download_youtube_video, get_max_images, is_youtube_url, videoToImages, clearDicrectory
-
+from .code.cnn_model import get_labels, cnn_model_eval
 
 views = Blueprint('views', __name__)
 
@@ -183,10 +184,8 @@ def wait():
 @views.route('/cnn_model',  methods=['GET', 'POST'])
 def cnn_model():
     model_user_id = session.get("model_user_id", None)
-    image_filename = session.get("image_filename", None)
     model_user_folder_path = session.get("model_user_folder_path", None)
     model_path = None
-    image_path = None
     missing_fields = False
     error_message = "enter all the fields to proceed with testing"
     
@@ -209,23 +208,13 @@ def cnn_model():
             model_path = os.path.join(model_user_folder_path , uploaded_model_file.filename)
             session['model_path'] = model_path
 
-            
-    if 'image_file' in request.files:
-        uploaded_image_file =  request.files['image_file']
-        if uploaded_image_file.filename != '':
-            image_path = os.path.join(model_user_folder_path , uploaded_image_file.filename)
-            session['image_path'] = image_path
 
-
-    if 'submit_model' in request.form:
+    if 'get_model' in request.form:
         print(model_path)
-        print(image_path)
-        if image_path != None and model_path != None:
+        if model_path != None:
             os.mkdir(model_user_folder_path)
-            session['image_filename'] = uploaded_image_file.filename
-            uploaded_image_file.save(image_path)
             uploaded_model_file.save(model_path)
-            return  redirect(url_for("cnn_model_final.html"))
+            return  redirect(url_for("views.cnn_model_final"))
         else:
             missing_fields = True
             return render_template("cnn_model.html", error_message = error_message,missing_fields = missing_fields)
@@ -240,39 +229,79 @@ def cnn_model():
 
 @views.route('/cnn_model_final',  methods=['GET', 'POST'])
 def cnn_model_final():
-    uploaded_new_image_file = None
+    uploaded_image_file = None
     model_user_folder_path = session.get("model_user_folder_path", None)
     image_filename = session.get("image_filename", None)
-    model_user_id = session.get("model_user_id", None)
     model_path = session.get("model_path", None)
     image_path = session.get("image_path", None)
-    
-    if image_filename != None:
-        #TODO add this line of code to the html "<img src="{{ url_for('static', filename='users/' + model_user_id + "/" +image_filename ) }}" alt="{{ image_filename }}" class="img-thumbnail" width="200">"
-        session['image_filename'] = None
-        return render_template("cnn_model_final.html", image_filename = image_filename)
-        
-    if request.method == 'POST':
+    labels = session.get("labels", None)
+    model_user_id = session.get("model_user_id", None)
+    is_image = False
+    is_done = session.get("is_done", False)
+    print(is_done)
+    user_inputs = []
+
+    if is_done:
+        if request.method == 'POST':
+            print("what the fuck")
+            
+            labels_num = get_labels(model_path)
+            for i in range (labels_num):
+                input_name = f'input{i}'
+                user_inputs.append(request.form[input_name])
+                print(request.form[input_name])
+            
+            if 'submit_labels' in request.form:
+                session["is_done"] = False
+                session["labels"] = user_inputs
+                return render_template("cnn_model_final.html", is_image = is_image, is_done = is_done)
 
             
-        if 'image_file' in request.files:
-            uploaded_new_image_file =  request.files['image_file']
-            if uploaded_new_image_file.filename != '':
-                image_path = os.path.join(model_user_folder_path , uploaded_new_image_file.filename)
+    if request.method == 'POST':
+        # if is_done:
+        #     print("what the fuck")
+        #     print("what the fuck")
+            
+        #     labels_num = get_labels(model_path)
+        #     for i in range (labels_num):
+        #         input_name = f'input{i}'
+        #         user_inputs.append(request.form[input_name])
+        #         print(request.form[input_name])
+            
+        #     if 'submit_labels' in request.form:
+        #         session["is_done"] = False
+        #         session["labels"] = user_inputs
+        #         return render_template("cnn_model_final.html", is_image = is_image, is_done = is_done)
+            
+            
+        if labels != None:
+            
+            if 'image_file' in request.files:
+                uploaded_image_file =  request.files['image_file']
+                if uploaded_image_file.filename != '':
+                    image_path = os.path.join(model_user_folder_path , uploaded_image_file.filename)
+
+            if 'submit_model' in request.form:
+                if uploaded_image_file != None:
+                    uploaded_image_file.save(image_path)
+                    is_image = True
+                    user_model = cnn_model_eval(model_path = model_path, image_path = image_path, labels = labels, model_user_id =model_user_id)
+            
+                    session['image_path'] = image_path
+                    image_name = uploaded_image_file.filename
+                    Confidence, preds_label = user_model.model_prediction()
+                    return render_template("cnn_model_final.html",image_name = image_name, Confidence =Confidence, preds_label = preds_label, is_image =is_image)
                 
+                else:
+                    return render_template("cnn_model_final.html", is_image =is_image)
+        else:
+            labels_num = get_labels(model_path)
+            session["is_done"] = True
+            return render_template("cnn_model_final.html",is_done = is_done, is_image = False, labels_num = labels_num)
 
+    user_model = cnn_model_eval(model_path = model_path, image_path = None, labels = None)
 
-        if 'submit_model' in request.form:
-            if uploaded_new_image_file != None:
-                uploaded_new_image_file.save(model_path)
-                session['image_path'] = image_path
-                
-            print(model_path)
-            print(image_path)
-
-       
-    
-    return render_template("cnn_model_final.html")
+    return render_template("cnn_model_final.html", is_image = is_image)
 
 
 

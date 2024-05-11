@@ -5,17 +5,12 @@
       <h1 align="center">image classification model tester</h1>
     </head>
     <body>
-      <div align="left">
-        <br></br>
-        <h2>upload your image here: </h2>
-        <input type="file" class="btn btn-outline-primary btn"  id="file" name="image_file" accept="image/*" >
-        <br></br>
-        <br></br>
+      <br></br>
 
+      <div align="left">
         <h2>upload your model here (.h5): </h2>
         <input type="file" class="btn btn-outline-primary btn" id="file" name="model_file" accept=".h5">
       </div>
-      <br></br>
       <br></br>
 
       {% if  missing_fields%}
@@ -23,7 +18,8 @@
       {% endif %}
 
       <br></br>
-      <input type="submit" class="btn btn-primary btn-block" value="test your model" name="submit_model">
+      <input type="submit" class="btn btn-primary btn-block" value="continue" name="get_model">
+
      </body>
   </form>
 

@@ -8,7 +8,7 @@ import os
 from PIL import Image
  
 
-class cnn_model():
+class cnn_model_eval():
     def __init__(self, model_path, image_path, labels):
         self.model_path = model_path
         self.image_path = image_path
@@ -22,7 +22,7 @@ class cnn_model():
 
     def resize_img(self):
         image = Image.open(self.image_path).convert('L')  # Convert image to grayscale
-        size = cnn_model.get_model_input_size(self)
+        size = cnn_model_eval.get_model_input_size(self)
         resized = image.resize(size)  # Resize directly to the desired input size
         resized = np.expand_dims(resized, axis=-1)  # Add grayscale channel
         resized = np.tile(resized, (1, 1, 3))  # Convert to RGB by repeating grayscale channel
@@ -30,17 +30,8 @@ class cnn_model():
         resized.save(self.image_path)
         image.close()
 
-
-    def model_evaluation(self):
-        model = load_model(self.model_path)
-        val_loss, val_acc = model.evaluate()
-        
-        return val_loss, val_acc
-
-
-
     def model_prediction(self):
-        cnn_model.resize_img(self)
+        cnn_model_eval.resize_img(self)
         img = Image.open(self.image_path)
         model = load_model(self.model_path)
         
