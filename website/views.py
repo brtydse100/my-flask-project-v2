@@ -21,12 +21,8 @@ from .code.cnn_model import get_labels, cnn_model_eval
 views = Blueprint('views', __name__)
 
 
-
-
-
-@views.route('/',  methods=['GET', 'POST'])
-def home():
-
+@views.route('/hub',  methods=['GET', 'POST'])
+def hub():
     youtube_url = 'Please_enter_a_vaild_youtube_url'
     
     if request.method == 'POST':
@@ -66,8 +62,24 @@ def home():
                     session['is_showing'] = True
                     return redirect(url_for('views.final')) 
 
-    return render_template("home.html", youtube_url=youtube_url)
+    return render_template("hub.html", youtube_url=youtube_url)
 
+
+
+@views.route('/',  methods=['GET', 'POST'])
+def home():
+    if request.method == 'POST':
+        
+        if 'get_images' in request.form:
+            return redirect(url_for('views.hub')) 
+        
+        if 'cnn_model' in request.form:
+            return redirect(url_for('views.cnn_model')) 
+    
+
+    return render_template("home.html")
+
+   
 
 @views.route('/final',  methods=['GET', 'POST'])
 def final():
@@ -100,8 +112,6 @@ def final():
         images_to_get = request.form.get("images_to_get")
         print("images_to_get: ", images_to_get)
         session['images_to_get'] = images_to_get
-
-
                 
         if 'download' in request.form:
             return redirect(url_for('views.loading'))

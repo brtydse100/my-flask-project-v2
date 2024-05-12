@@ -14,7 +14,7 @@
           <br>
           <br>
         {% endfor %}
-        <input type="submit" class="btn btn-outline-primary btn" value="Submit Labels" name="submit_labels">
+        <input type="submit" class="btn btn-outline-primary btn" value="continue" name="submit_labels">
         <input type="submit" class="btn btn-outline-primary btn" value="return home" name="return_home">
         
         </div>
@@ -36,8 +36,6 @@
         {% endif %}
 
         <br><br>
-        <br><br>
-        <br><br>
 
         <div name="model prediction"> 
           <output for="range-input" id="output">model accuracy: {{Confidence}}</output>
@@ -53,7 +51,7 @@
         </div>
   
         <br><br>
-        <input type="submit" class="btn btn-primary btn-block" value="test your model" name="submit_image">
+        <input type="submit" class="btn btn-primary btn-block" value="test your image" name="submit_image">
         <input type="submit" class="btn btn-primary btn-block" value="reenter your labels" name="reenter_labels">
         <input type="submit" class="btn btn-primary btn-block" value="return home" name="return_home">
       </body>

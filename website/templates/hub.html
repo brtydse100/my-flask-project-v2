@@ -1,0 +1,30 @@
+{% extends 'base.html' %} {% block title %}hub{% endblock title %} {% block
+content %}
+
+<form method="POST" action="{{ url_for('views.hub') }}" enctype="multipart/form-data">
+  <h1 align="center">Enter a youtube url</h1>
+  <div align="center">
+    <input
+      type="text"
+      name = "youtube_url"
+      placeholder={{youtube_url}}
+      style="width: 400px"
+    />
+    <br/>
+    <br/>
+
+    <div align = "center">
+        <input type="file" name="video_file" id="file" accept=".MP4,.MOV,.AVI,.WMV,.AVCHD,.WEBM">
+    </div>
+    
+    <br/>
+    <br/>   
+    <br/>
+    
+    <button type="submit" class="btn btn-primary" id="continue">
+      continue
+    </button>
+  </div>
+</form>
+
+{% endblock content %}

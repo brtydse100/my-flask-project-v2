@@ -1,30 +1,26 @@
-{% extends 'base.html' %} {% block title %}Home{% endblock title %} {% block
-content %}
-<h1 align="center">Enter a youtube url</h1>
+{% extends 'base.html' %} {% block title %}home{% endblock title %} {% block
+    content %}
+    <form method="POST" action="{{ url_for('views.home') }}" >
+      <head>
+        <h1 align="center">cnn model home:</h1>
+      </head>
+      <body>
+        <br></br>
+  
+        <div align="left">
+          <h2>if you wish to check your cnn model click here: </h2>
+          <input type="submit" class="btn btn-primary btn-block" value="check your model" name="cnn_model">
+          
+          <br></br>
+          <br></br>
+          
+          <h2>if you wish to get images from a youtube video or a video file click here: </h2>
+          <input type="submit" class="btn btn-primary btn-block" value="get images" name="get_images">
+        </div>
 
-<form method="POST" enctype="multipart/form-data">
-  <div align="center">
-    <input
-      type="text"
-      name = "youtube_url"
-      placeholder={{youtube_url}}
-      style="width: 400px"
-    />
-    <br/>
-    <br/>
-
-    <div align = "center">
-        <input type="file" name="video_file" id="file" accept=".MP4,.MOV,.AVI,.WMV,.AVCHD,.WEBM">
-    </div>
+  
+       </body>
+    </form>
+  
     
-    <br/>
-    <br/>   
-    <br/>
-    
-    <button type="submit" class="btn btn-primary" id="continue">
-      continue
-    </button>
-  </div>
-</form>
-
-{% endblock content %}
+    {% endblock content %}
