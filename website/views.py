@@ -200,9 +200,8 @@ def cnn_model():
         session['model_user_folder_path'] = model_user_folder_path
         
 
-
     if 'model_file' in request.files:
-        
+    
         uploaded_model_file =  request.files['model_file']
         if uploaded_model_file.filename != '':
             model_path = os.path.join(model_user_folder_path , uploaded_model_file.filename)
@@ -214,6 +213,10 @@ def cnn_model():
         if model_path != None:
             os.mkdir(model_user_folder_path)
             uploaded_model_file.save(model_path)
+            session["labels"] = None
+            session["is_done"] = True
+            session['labels_num'] = get_labels(model_path)
+            
             return  redirect(url_for("views.cnn_model_final"))
         else:
             missing_fields = True
@@ -237,71 +240,59 @@ def cnn_model_final():
     labels = session.get("labels", None)
     model_user_id = session.get("model_user_id", None)
     is_image = False
-    is_done = session.get("is_done", False)
-    print(is_done)
+    is_done = session.get("is_done", True)
+    labels_num = session.get("labels_num", None)
+    print(model_user_id)
+    print(labels)
     user_inputs = []
-
-    if is_done:
-        if request.method == 'POST':
-            print("what the fuck")
-            
-            labels_num = get_labels(model_path)
-            for i in range (labels_num):
-                input_name = f'input{i}'
-                user_inputs.append(request.form[input_name])
-                print(request.form[input_name])
-            
-            if 'submit_labels' in request.form:
-                session["is_done"] = False
-                session["labels"] = user_inputs
-                return render_template("cnn_model_final.html", is_image = is_image, is_done = is_done)
-
-            
-    if request.method == 'POST':
-        # if is_done:
-        #     print("what the fuck")
-        #     print("what the fuck")
-            
-        #     labels_num = get_labels(model_path)
-        #     for i in range (labels_num):
-        #         input_name = f'input{i}'
-        #         user_inputs.append(request.form[input_name])
-        #         print(request.form[input_name])
-            
-        #     if 'submit_labels' in request.form:
-        #         session["is_done"] = False
-        #         session["labels"] = user_inputs
-        #         return render_template("cnn_model_final.html", is_image = is_image, is_done = is_done)
-            
-            
-        if labels != None:
+    
+    if labels != None:
+        session["is_done"] == False
+        is_done = False
+        
+    if request.method == "POST":
+        print("hello")
+        if labels != None and is_done == False:
             
             if 'image_file' in request.files:
                 uploaded_image_file =  request.files['image_file']
                 if uploaded_image_file.filename != '':
                     image_path = os.path.join(model_user_folder_path , uploaded_image_file.filename)
 
-            if 'submit_model' in request.form:
+            if 'submit_image' in request.form:
                 if uploaded_image_file != None:
                     uploaded_image_file.save(image_path)
                     is_image = True
-                    user_model = cnn_model_eval(model_path = model_path, image_path = image_path, labels = labels, model_user_id =model_user_id)
-            
+                    user_model = cnn_model_eval(model_path = model_path, image_path = image_path, labels = labels)
                     session['image_path'] = image_path
                     image_name = uploaded_image_file.filename
                     Confidence, preds_label = user_model.model_prediction()
-                    return render_template("cnn_model_final.html",image_name = image_name, Confidence =Confidence, preds_label = preds_label, is_image =is_image)
+                    return render_template("cnn_model_final.html",image_name = image_name, Confidence =str(Confidence), preds_label = preds_label, is_image =is_image, model_user_id = str(model_user_id))
                 
                 else:
                     return render_template("cnn_model_final.html", is_image =is_image)
         else:
-            labels_num = get_labels(model_path)
-            session["is_done"] = True
-            return render_template("cnn_model_final.html",is_done = is_done, is_image = False, labels_num = labels_num)
-
+            for i in range (labels_num):
+                
+                input_name = f'input{i}'
+                user_inputs.append(request.form[input_name])
+                print(request.form[input_name])
+            
+            if 'submit_labels' in request.form:
+                for label in user_inputs:
+                    if label == "":
+                        print("bad")
+                        session["labels"] = None
+                        return render_template("cnn_model_final.html", is_image = is_image, is_done = is_done, labels_num = labels_num)
+                        
+                
+                session["labels"] = user_inputs
+                return render_template("cnn_model_final.html", is_image = is_image, is_done = False, labels_num = labels_num)
+           
+            
     user_model = cnn_model_eval(model_path = model_path, image_path = None, labels = None)
 
-    return render_template("cnn_model_final.html", is_image = is_image)
+    return render_template("cnn_model_final.html", is_image = is_image, is_done = is_done, labels_num = labels_num)
 
 
 

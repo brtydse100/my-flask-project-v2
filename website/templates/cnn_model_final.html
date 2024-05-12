@@ -1,57 +1,62 @@
 {% extends 'base.html' %} {% block title %}cnn_model_final{% endblock title %} {% block
     content %}
-      {% if is_done %}
-      <form method="POST" action="{{ url_for('views.cnn_model_final') }}">
+  <form method="POST" action="{{ url_for('views.cnn_model_final') }}" enctype="multipart/form-data">
+
+    {% if is_done %}
+      <head align = "center">
+        <h1> Enter the name of your model labels</h1>
+      </head>
+      <body>
+        <div align = "left">
         {% for i in range(labels_num) %}
-          <label for="input{{ i }}">Class {{ i + 1 }}:</label>
-          <input type="text" id="input{{ i }}" name="input{{ i }}"><br>
+          <label for="input{{ i }}">label {{ i + 1 }}:</label>
+          <input type="text" id="input{{ i }}" name="input{{ i }}">
+          <br>
+          <br>
         {% endfor %}
-        <input type="submit" value="Submit Labels" name="submit_labels">
-      </form>
-      {% else %}
-      <form method="POST" action="{{ url_for('views.cnn_model_final') }}" enctype="multipart/form-data">
+        <input type="submit" class="btn btn-outline-primary btn" value="Submit Labels" name="submit_labels">
+        </div>
+      </body>
+    {% else %}
 
-        <head>
-          <h1 align="center">image classification model tester</h1>
-          <h2 align="center"> {{is_done}}</h2>
+      <head>
+        <h1 align="center">image classification model tester</h1>
+      </head>
+      
+      <br><br>
+      <br><br>
 
-        </head>
-
-        <body>
-          {% if is_image %}
-            <div name="show image">
-              <img src="{{ url_for('static', filename='users/' + model_user_id + "/" +image_filename ) }}" alt="{{ image_name }}" class="img-thumbnail" width="200">
-            </div>
-          {% endif %}
-
-          <br><br>
-
-          <br><br>
-          <br><br>
-
-          <div name="model conf"> 
-            <output for="range-input" id="output">model accuracy: {{accuracy}}</output>
-              <br><br>
-
-            <output for="range-input" id="output">model loss: {{loss}}</output>
-
-            <div align="left">
-              <br><br>
-              <h2>test pictures: </h2>
-              <input type="file" class="btn btn-outline-primary btn"  id="file" name="image_file" accept="image/*" >
-            </div>
+      <body>
+        {% if is_image %}
+          <div name="show image" align = "center">
+            <img src="{{ url_for('static', filename='users/' + model_user_id + "/" +image_name ) }}" alt="{{ image_name }}" class="img-thumbnail" width="300">
           </div>
-    
-          {% if missing_fields %}
-            <output for="range-input" id="output">{{error_message}}</output>
-          {% endif %}
-    
-          <br><br>
-          <input type="submit" class="btn btn-primary btn-block" value="test your model" name="submit_model">
-          <input type="submit" class="btn btn-primary btn-block" value="return home" name="submit_model">
-        </body>
+        {% endif %}
+
+        <br><br>
+        <br><br>
+        <br><br>
+
+        <div name="model prediction"> 
+          <output for="range-input" id="output">model accuracy: {{Confidence}}</output>
+            <br><br>
+
+          <output for="range-input" id="output">predicated label: {{preds_label}}</output>
+
+          <div align="left">
+            <br><br>
+            <h2>test pictures: </h2>
+            <input type="file" class="btn btn-outline-primary btn"  id="file" name="image_file" accept="image/*" >
+          </div>
+        </div>
+  
+        <br><br>
+        <input type="submit" class="btn btn-primary btn-block" value="test your model" name="submit_image">
+        <input type="submit" class="btn btn-primary btn-block" value="return home" name="return_home">
+      </body>
+      
+      {% endif %}
     </form>
 
-      {% endif %}
 {% endblock content %}
     
