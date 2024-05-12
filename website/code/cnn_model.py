@@ -9,9 +9,10 @@ from PIL import Image
  
 
 class cnn_model_eval():
-    def __init__(self, model_path, image_path, labels):
+    def __init__(self, model_path, image_path, labels, user_folder_path):
         self.model_path = model_path
         self.image_path = image_path
+        self.user_folder_path = user_folder_path
         self.labels = labels
         
     def get_model_input_size(self):
@@ -21,18 +22,36 @@ class cnn_model_eval():
         return clean_outputs
 
     def resize_img(self):
-        image = Image.open(self.image_path).convert('L')  # Convert image to grayscale
+        image = Image.open(self.image_path)
+        
+        # Check if the image is grayscale, if so, convert it to RGB
+        if image.mode == 'L':
+            image = image.convert('RGB')
+        
         size = cnn_model_eval.get_model_input_size(self)
+
         resized = image.resize(size)  # Resize directly to the desired input size
-        resized = np.expand_dims(resized, axis=-1)  # Add grayscale channel
-        resized = np.tile(resized, (1, 1, 3))  # Convert to RGB by repeating grayscale channel
+        resized = np.array(resized)  # Convert to numpy array
+
         resized = Image.fromarray(resized)
-        resized.save(self.image_path)
+        
+        # Convert to RGB mode
+        resized = resized.convert('RGB')
+        
+        # Print the converted image mode
+        print("Converted image mode:", resized.mode)
+        
+        # Save the image to check separately
+        resized_img_path = os.path.join(self.user_folder_path, "output_image.jpg")
+        resized.save(resized_img_path)
+        
+        resized.close()
         image.close()
+        return resized_img_path
 
     def model_prediction(self):
-        cnn_model_eval.resize_img(self)
-        img = Image.open(self.image_path)
+        
+        img = Image.open(cnn_model_eval.resize_img(self))
         model = load_model(self.model_path)
         
         preprocessed_image = np.array(img) / 255.0
@@ -43,6 +62,7 @@ class cnn_model_eval():
 
         preds_label = self.labels[preds_class]
         Confidence = preds[0][preds_class]
+        img.close()
         return Confidence, preds_label
 
 def get_labels(model_path):
