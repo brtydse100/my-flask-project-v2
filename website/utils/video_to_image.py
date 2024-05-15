@@ -1,5 +1,3 @@
-from random import randint, randrange
-from multiprocessing import Process
 import re
 import shutil
 import cv2

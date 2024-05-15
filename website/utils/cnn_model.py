@@ -1,9 +1,5 @@
 import numpy as np
-import pandas as pd
-import tensorflow as tf
-from keras.utils import load_img
-from keras.models import Sequential,load_model
-import matplotlib.pyplot as plt
+from keras.models import load_model
 import os
 from PIL import Image
  
@@ -17,7 +13,7 @@ class cnn_model_eval():
         
     def get_model_input_size(self):
         model = load_model(self.model_path)
-        inputs = model.input.shape
+        inputs = model.input_shape
         clean_outputs = tuple(inputs[1:3])  # We only need the first two dimensions
         return clean_outputs
 
@@ -67,7 +63,7 @@ class cnn_model_eval():
 
 def get_labels(model_path):
     model = load_model(model_path)
-    output = model.output.shape
+    output = model.output_shape
     num_of_classes = output[1]
     
     return num_of_classes
