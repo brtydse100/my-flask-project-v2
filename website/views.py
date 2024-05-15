@@ -12,18 +12,28 @@ import glob
 import os
 import cv2
 import _thread
+from flask import Blueprint, Flask, url_for, render_template, request, redirect, session, send_file
 
-from flask import Blueprint,  url_for, render_template, request, redirect, session, send_file
-
-from .code.video_to_image import download_youtube_video, get_max_images, is_youtube_url, videoToImages, clearDicrectory
-from .code.cnn_model import get_labels, cnn_model_eval
+from utils.video_to_image import download_youtube_video, get_max_images, is_youtube_url, videoToImages, clearDicrectory
+from utils.cnn_model import get_labels, cnn_model_eval
 
 views = Blueprint('views', __name__)
+
+def create_app():
+    app = Flask(__name__)
+    app.config['SECRET_KEY'] = 'hjshjhdjah kjshkjdhjs'
+
+
+    app.register_blueprint(views, url_prefix='/')
+    return app
 
 
 @views.route('/hub',  methods=['GET', 'POST'])
 def hub():
     youtube_url = 'Please_enter_a_vaild_youtube_url'
+    
+    if 'return' in request.form:
+        return  redirect(url_for("views.home"))
     
     if request.method == 'POST':
         youtube_url = request.form.get('youtube_url')
@@ -199,8 +209,12 @@ def cnn_model():
     missing_fields = False
     error_message = "enter all the fields to proceed with testing"
     
+    if 'return' in request.form:
+        return  redirect(url_for("views.home"))
+    
     
     if request.method == 'POST':
+
         model_user_id = randrange(0, 1000000)
         current_path = os.path.dirname(os.path.abspath(__file__))
 
@@ -210,27 +224,27 @@ def cnn_model():
         session['model_user_folder_path'] = model_user_folder_path
         
 
-    if 'model_file' in request.files:
-    
-        uploaded_model_file =  request.files['model_file']
-        if uploaded_model_file.filename != '':
-            model_path = os.path.join(model_user_folder_path , uploaded_model_file.filename)
-            session['model_path'] = model_path
+        if 'model_file' in request.files:
+        
+            uploaded_model_file =  request.files['model_file']
+            if uploaded_model_file.filename != '':
+                model_path = os.path.join(model_user_folder_path , uploaded_model_file.filename)
+                session['model_path'] = model_path
 
 
-    if 'get_model' in request.form:
-        print(model_path)
-        if model_path != None:
-            os.mkdir(model_user_folder_path)
-            uploaded_model_file.save(model_path)
-            session["labels"] = None
-            session["is_done"] = True
-            session['labels_num'] = get_labels(model_path)
-            
-            return  redirect(url_for("views.cnn_model_final"))
-        else:
-            missing_fields = True
-            return render_template("cnn_model.html", error_message = error_message,missing_fields = missing_fields)
+        if 'get_model' in request.form:
+            print(model_path)
+            if model_path != None:
+                os.mkdir(model_user_folder_path)
+                uploaded_model_file.save(model_path)
+                session["labels"] = None
+                session["is_done"] = True
+                session['labels_num'] = get_labels(model_path)
+                
+                return  redirect(url_for("views.cnn_model_final"))
+            else:
+                missing_fields = True
+                return render_template("cnn_model.html", error_message = error_message,missing_fields = missing_fields)
             
 
     
@@ -325,6 +339,11 @@ def cnn_model_final():
     return render_template("cnn_model_final.html", is_image = is_image, is_done = is_done, labels_num = labels_num)
 
 
+app = create_app()
 
+if __name__ == '__main__':
+    # run_simple('localhost', 8080, app, use_reloader=True)
+    
+    app.run(debug=True)
     
 
