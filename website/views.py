@@ -178,8 +178,6 @@ def wait():
     user_id = session.get("user_id", None)
     user_folder_path = session.get("user_folder_path", None)
     file_path = session.get("file_path", None)
-    print(file_path)
-    print(user_folder_path)
     if not os.path.exists(file_path):
         _thread.start_new_thread(download_youtube_video, (youtube_url,user_id,user_folder_path))
     else:
@@ -338,7 +336,6 @@ app = create_app()
 
 if __name__ == '__main__':
     # run_simple('localhost', 8080, app, use_reloader=True)
-    
-    app.run(debug=True)
-    
-
+    #app.run(host='192.168.0.11', port=5020)
+    #app.run(debug=True,host='0.0.0.0', port=5000)
+    app.run(debug=True, host='192.168.0.11',port=5020)

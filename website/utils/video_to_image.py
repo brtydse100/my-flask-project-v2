@@ -83,7 +83,6 @@ def frames_to_get(cap, images_to_get):
 
 
 def get_max_images(cap):
-    print(cap.get(cv2.CAP_PROP_FPS))
     if cap.get(cv2.CAP_PROP_FPS) == 0:
         return 0
     return int(cap.get(cv2.CAP_PROP_FRAME_COUNT) / cap.get(cv2.CAP_PROP_FPS))
