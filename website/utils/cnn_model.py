@@ -12,14 +12,13 @@ class cnn_model_eval():
         self.labels = labels
         
     def get_model_input_size(self):
-        model = load_model(self.model_path)
+        model = load_model(self.model_path,  compile=False)
         inputs = model.input_shape
         clean_outputs = tuple(inputs[1:3])  # We only need the first two dimensions
         return clean_outputs
 
     def resize_img(self):
         image = Image.open(self.image_path)
-        
         # Check if the image is grayscale, if so, convert it to RGB
         if image.mode == 'L':
             image = image.convert('RGB')

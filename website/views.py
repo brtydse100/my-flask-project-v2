@@ -209,6 +209,7 @@ def cnn_model():
     if request.method == 'POST':
 
         model_user_id = randrange(0, 1000000)
+        print(model_path)
         current_path = os.path.dirname(os.path.abspath(__file__))
 
         model_user_folder_path = os.path.join(current_path, (r"static\users\\" + str(model_user_id)))
