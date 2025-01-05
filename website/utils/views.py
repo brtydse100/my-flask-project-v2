@@ -9,18 +9,13 @@ import cv2
 import _thread
 from flask import Blueprint, Flask, url_for, render_template, request, redirect, session, send_file
 
-from utils.video_to_image import download_youtube_video, get_max_images, is_youtube_url, videoToImages, clearDicrectory
-from utils.cnn_model import get_labels, cnn_model_eval
+# from utils.video_to_image import download_youtube_video, get_max_images, is_youtube_url, videoToImages, clearDicrectory
+# from utils.cnn_model import get_labels, cnn_model_eval
+
+from .video_to_image import download_youtube_video, get_max_images, is_youtube_url, videoToImages, clearDicrectory
+from .cnn_model import get_labels, cnn_model_eval
 
 views = Blueprint('views', __name__)
-
-def create_app():
-    app = Flask(__name__)
-    app.config['SECRET_KEY'] = 'hjshjhdjah kjshkjdhjs'
-
-
-    app.register_blueprint(views, url_prefix='/')
-    return app
 
 
 @views.route('/hub',  methods=['GET', 'POST'])
@@ -35,10 +30,12 @@ def hub():
         user_id = randrange(0, 1000000)
         user_folder_path = None
         current_path = os.path.dirname(os.path.abspath(__file__))
-
+        
         user_folder_path = os.path.join(current_path, (r"static\users\\" + str(user_id)))
+        user_folder_path = user_folder_path.replace("\\utils", "")
+        
         session['user_id'] = user_id
-            
+          
         session['user_folder_path'] = user_folder_path
         session['file_path'] = os.path.join(user_folder_path, (str(user_id)+".txt"))
         
@@ -213,6 +210,7 @@ def cnn_model():
         current_path = os.path.dirname(os.path.abspath(__file__))
 
         model_user_folder_path = os.path.join(current_path, (r"static\users\\" + str(model_user_id)))
+        model_user_folder_path = model_user_folder_path.replace("\\utils", "")
         session['model_user_id'] = model_user_id
             
         session['model_user_folder_path'] = model_user_folder_path
@@ -332,11 +330,3 @@ def cnn_model_final():
 
     return render_template("cnn_model_final.html", is_image = is_image, is_done = is_done, labels_num = labels_num)
 
-
-app = create_app()
-
-if __name__ == '__main__':
-    # run_simple('localhost', 8080, app, use_reloader=True)
-    #app.run(host='192.168.0.11', port=5020)
-    #app.run(debug=True,host='0.0.0.0', port=5000)
-    app.run(debug=True, host='192.168.0.11',port=5020)

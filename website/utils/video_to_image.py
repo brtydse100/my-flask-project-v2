@@ -3,7 +3,8 @@ import shutil
 import cv2
 import os
 import math
-from pytube import YouTube
+import yt_dlp
+
 
 def is_youtube_url(url):
     youtube_pattern = re.compile(
@@ -22,25 +23,36 @@ def videoTime(cap):
 
 
 def download_youtube_video(video_url, user_id, user_folder):
+    # Change directory to the user folder
     os.chdir(user_folder)
+    
+    # Log the start of the process
     with open(f"{user_id}.txt", "a") as f:
         f.write("started \n")
-        f.close()
-
+    
     try:
-        youtube = YouTube(video_url)
-        video_stream = youtube.streams.get_highest_resolution()
-        video_path = video_stream.download(
-            output_path=user_folder)
-        
-        os.chdir(user_folder)
-        
+        # Set up yt_dlp options
+        ydl_opts = {
+            'outtmpl': os.path.join(user_folder, '%(title)s.%(ext)s'),  # Save file in the specified folder with video title
+            'format': 'best',  # Choose the best quality video and audio combined
+        }
+
+        # Download the video
+        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+            info_dict = ydl.extract_info(video_url, download=True)
+            video_path = os.path.join(user_folder, f"{info_dict['title']}.{info_dict['ext']}")
+
+        # Log the video path and completion
         with open(f"{user_id}.txt", "a") as f:
             f.write(video_path + "\n")
-            f.write("finished")
-            
-
+            f.write("finished\n")
+        
+        return True, f"Video downloaded successfully: {video_path}"
+    
     except Exception as e:
+        # Log the error
+        with open(f"{user_id}.txt", "a") as f:
+            f.write(f"An error occurred: {str(e)}\n")
         return False, f"An error occurred: {str(e)}"
 
 
